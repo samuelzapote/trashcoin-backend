@@ -1,9 +1,9 @@
 const komodo = require('npm-komodorpc-library');
 
-const conn = new komodo.Connect(rpc_user='user2957205584',
-rpc_password='passdf598a327594cb250bd80daa8e283e8e6851841929e40595fc20bc024932de1467',
+const conn = new komodo.Connect(rpc_user='user3661840881',
+rpc_password='passd961a6e2cac6e8078bc079ce5c22601dad8bb045e37dbfc50c8e36bd06361fab4a',
 rpc_ipaddress='http://127.0.0.1',
-rpc_port='32648');
+rpc_port='15184');
 
 async function mainfunc(){
     let walletinfo = await conn.getwalletinfo() // await works in a async function
