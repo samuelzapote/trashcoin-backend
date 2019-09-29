@@ -111,7 +111,7 @@ let observer = masterMetadataRef.onSnapshot(masterMetadataDoc => {
   console.log(`Encountered error: ${err}`);
 });
 
-async function quickstart(filePath, ownerUid) {
+async function quickstart(filePath, ownerUid, userMetadataId) {
     // Creates a client
     const client = new vision.ImageAnnotatorClient();
 
@@ -139,6 +139,17 @@ async function quickstart(filePath, ownerUid) {
         };
         masterMetadataRef.update({
           coinReq: newRecycle
+        }).then(() => {
+          fs.access(fileName, error => {
+            if (!error) {
+              fs.unlinkSync(filePath);
+            } else {
+              console.log(error);
+            }
+          });
+          db.collection('metadatas').doc(userMetadataId).update({
+            imageUrl: null
+          });
         });
       })
       // const vertices = object.boundingPoly.normalizedVertices;
@@ -146,7 +157,7 @@ async function quickstart(filePath, ownerUid) {
     });
 }
 
-function downloadImage(imageUrl, ownerUid) {
+function downloadImage(imageUrl, ownerUid, userMetadataId) {
   var download = function(uri, filename, callback){
     request.head(uri, function(err, res, body){
       console.log('content-type:', res.headers['content-type']);
@@ -158,7 +169,7 @@ function downloadImage(imageUrl, ownerUid) {
   
   let imageName = './images/' + imageUrl.slice(-8) + '.png';
   download(imageUrl, imageName, function(){
-    quickstart(imageName, ownerUid);
+    quickstart(imageName, ownerUid, userMetadataId);
   });
 }
 
@@ -171,11 +182,10 @@ if (MODE == 'MEMBER') {
     userMetadataRef.onSnapshot(userMetadataDoc => {
       const userMetadata = userMetadataDoc.data();
       if (userMetadata.predictImage) {
-        downloadImage(userMetadata.predictImage, userDoc.data().uid);
-
+        downloadImage(userMetadata.predictImage, userDoc.data().uid, userDoc.data().userMetadata);
       }
       if (userMetadata.recycled) {
-        // TODO: Request Wallet Info
+        // Request Wallet Info
         const walletRes=conn.getwalletinfo();
         walletRes.then((res)=>{
           userRef.update({
