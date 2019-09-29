@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "trash-detection",
+  "private_key_id": "b2e4119a630ba61236fdabb2e13abdf264e88213",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCoXlS1qCUJgXUr\nDg6Y7FwGLB42FuJVrJ/kQeOmN+yiwwTkkU74nPGzvXNcBtzbQcvmwMf/6r1+TnzN\nthU6VlrtXM7NP3pVkcpUcKjh/9Nu1wJ7vSFmUY6ZgxoJijrDYFoflvtyhJK6Q2j/\nI2EYUgPUO5THxOpfBaEw/nbfbAPG2td3J7pG4jmk5nW4vtf6p9elGhIzB93oRgBg\nWDsJnytL6xLbAG7dFeQLJAPp9u+nocf8uX8bloanXSSsvDDGEpfA0m8JUQVACCUc\nC11dVoTwzuIjSAeMHdLcuvirbemkKWgVOA74Jsqk7UVZcsurnQY1BRzQJBtekiq9\nZWz88eRRAgMBAAECggEABMdImC9BfdeSv7oSZ/ytT++Im/hiTBQuJYhJMbp8mNH4\nHZSSLTQnF/bUg1QeiIqBgvcNthGvdxo7KIt2ZsV0py/vHpwimLMeju7znBZqpcas\nZ16iyAigh3LVFlg5+rmNVUAvurxQfcDUBgm3A72wJiHawyCvlirOvFk8fnLOWKJp\nfnMEZgGY9dydYqbcjFzTwMbVe2Li+jKDEWJcrD2RbNGbKnHoZ/1slTQWjLmA0S2n\niAQ2igrQ5p6NmIBhw3dbEL0l0ZJURmD8RDIS+N65XqQe8z5Xo7AVBHyuxopPSOH6\nq4EGr7xvsvusVk7lTn3TYD2r9KTL4BA9quvQopX4AQKBgQDtw2bkGhoPb3VUhuvJ\n560R4cl6WRQtcit0CKBtVY+sdudt5ecLx5ddvQmwKBl6kNTkGCnmThJqkU6jQF1f\nZYNZieHhq1llKX8kV3NXHl1Pi6L05jjs+DXaqaPfKp3juWn8nVQesn8iEPPH1Ytf\nX6W6n7uwS0yfjeJwwd0GIb2IsQKBgQC1SFP9H0tVxpEqGqr5z5/q+pAlCLJmikTD\n9hN1z0dryQkm4JTdl7hAk2DUeKLjYMhjYzhCm8f4p3lHvzq4n7eiZkGuBmlVHhG5\nCRbDOckA5/6QSP4w3tFM5268kbrZ/DDkYekkd9/kHbIDkt/Evgv1ajNgFqF1pBOv\noz4j6Sj9oQKBgHRDm9moxduMZjRqMXyutFvNLAeO7aX3cTYxTbmJIFN2ZV7BEEUb\nWXI2ETm5shPUJLZQ9pQu0ySXX3vG6qHOcvdizDjc4D7ulsR/muAb8gcGwi29MlL2\nYOdHEuH65fBIZ4JmsI6+PBq9bWfnjVqa2+CxYUco2xQefn8i3WC1OQhRAoGBAKJy\nAMk3DMP9XsGzCfk3Q19GTnrRM0RNrNdJICEWsDJ3AJt07hEvzq0XI9Lhk11bsdXV\n6GlPvT8lm7leNBmTDfQZ28s89ZCPlGQSL/KbSnJkcaoLrrRORpG6ZXHWyPBjW9Cb\nqFbEkL2Smp03NQvRHVg6ZXU6ck6/y+A80QdO/SthAoGBAJB3FTleSMzQ9vcdcGXf\n9Iizr+O8epFVrw036Cb5TzbbVP1OkqiXZkhKR/WjW8bRJ76kGDgF9FoswYfIcfnf\neGOPOFpsCfuemv4b0q4cF9emAxWNm4V8FZMJ81LUn/UU+JRAYcB+K4XcZhzmlgxP\nLUgAlVTTDiXtH+xc3xb04qsh\n-----END PRIVATE KEY-----\n",
+  "client_email": "hafsa-765@trash-detection.iam.gserviceaccount.com",
+  "client_id": "111371524486644891453",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/hafsa-765%40trash-detection.iam.gserviceaccount.com"
+}
