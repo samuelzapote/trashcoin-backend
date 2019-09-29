@@ -28,15 +28,16 @@ let observer = masterMetadataRef.onSnapshot(masterMetadataDoc => {
       metal: 2.0,
       other: 0
     }
-    if(masterMetadata.addNode.active){
-      let out = conn.addnode(masterMetadata.addNode.ip, "onetry");
-      out.then((res) => console.log(res));
-  
+    //
+    if(masterMetadata.addNode.active ){
+
+
       let peers = conn.getpeerinfo();
       peers.then((res) => {
         console.log(res);
         res.forEach((x) => {
           if(x.addr == masterMetadata.addNode.ip || x.addrlocal == masterMetadata.addNode.ip) {
+
             console.log("Your node has been added to the Network");
             let newMasterMetadata = {
               addNode: {
@@ -48,8 +49,15 @@ let observer = masterMetadataRef.onSnapshot(masterMetadataDoc => {
               coinReq: masterMetadata.coinReq,
               nodeReg: masterMetadata.nodeReg
             };
-  
+
             masterMetadataRef.set(newMasterMetadata);
+          }else{
+            db.collection('users').doc(masterMetadata.addNode.uid).update({role:'Member'});
+            let out = conn.addnode(masterMetadata.addNode.ip, "onetry");
+            out.then((res) => console.log(res));
+            masterMetadataRef.update({nodeReg:masterMetadata.nodeReg.push(
+                {ip:masterMetadata.addNode.ip,
+                uid:masterMetadata.addNode.uid})})
           }
         })
       })
@@ -64,6 +72,8 @@ let observer = masterMetadataRef.onSnapshot(masterMetadataDoc => {
       }
       if (reward > 0) {
         // TODO: Komodo send determined amount to hash address
+        const tx = conn.sendtoaddress(request.hash,reward);
+        tx.then((res)=>console.log(res));
           // Done
           db.collection('users').doc(request.uid).get().then((userDoc) => {
             const userMetadataRef = db.collection('metadatas').doc(userDoc.data().userMetadata + '');
@@ -74,7 +84,7 @@ let observer = masterMetadataRef.onSnapshot(masterMetadataDoc => {
                 recycledReg: newRecycledReg,
                 recycled: true,
               });
-            })
+            }).catch((res)=>console.log(res))
           })
       }
     }
@@ -92,21 +102,23 @@ if (MODE == 'MEMBER') {
       const userMetadata = userMetadataDoc.data();
       if (userMetadata.recycled) {
         // TODO: Request Wallet Info
-        const walletRes;
+        const walletRes=conn.getwalletinfo();
+        walletRes.then((res)=>{
+                  userRef.update({
+                    coinAmount: res.balance + res.unconfirmed_balance
+                  }).then(() => {
+                    userMetadataRef.update({
+                      recycled: false
+                    });
+                  });
+        })
 
-        userRef.update({
-          coinAmount: walletRes
-        }).then(() => {
-          userMetadataRef.update({
-            recycled: false
-          });
-        });
       }
     }, err => {});
   })
 
 
-}  
+}
 
 // console.log(defaultProject.name);
 
