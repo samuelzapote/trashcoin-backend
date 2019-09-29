@@ -1,15 +1,22 @@
 const express = require('express');
+var fs = require('fs'),
+    request = require('request');
 const app = express();
 const admin = require('firebase-admin');
+// Imports the Google Cloud client library
+const {Storage} = require('@google-cloud/storage');
 const serviceAccount = require('./firebase-config');
 const rpclib = require('./rpclib');
 const MODE = 'MEMBER';
 const userEnv = require('./user-env');
+const gcVision = require('./gcvision');
 
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: 'common-app-fb.appspot.com'
 });
 let db = admin.firestore();
+
 let masterMetadataRef = db.collection('users').doc('metadata');
 
 conn = rpclib.conn;
@@ -93,13 +100,32 @@ let observer = masterMetadataRef.onSnapshot(masterMetadataDoc => {
   console.log(`Encountered error: ${err}`);
 });
 
+function downloadImage(imageUrl) {
+  var download = function(uri, filename, callback){
+    request.head(uri, function(err, res, body){
+      console.log('content-type:', res.headers['content-type']);
+      console.log('content-length:', res.headers['content-length']);
+  
+      request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
+    });
+  };
+  
+  let imageName = './images/' + imageUrl.slice(-8) + '.png';
+  download(imageUrl, imageName, function(){
+    gcVision.quickstart(imageName);
+  });
+}
 // User Logic
 if (MODE == 'MEMBER') {
   const userRef = db.collection('users').doc(userEnv.uid);
-  userRef.get().then((userDoc) => {
+  userRef.onSnapshot((userDoc) => {
     const userMetadataRef = db.collection('metadatas').doc(userDoc.data().userMetadata);
     userMetadataRef.onSnapshot(userMetadataDoc => {
       const userMetadata = userMetadataDoc.data();
+      if (userMetadata.predictImage) {
+        downloadImage(userMetadata.predictImage);
+
+      }
       if (userMetadata.recycled) {
         // TODO: Request Wallet Info
         const walletRes=conn.getwalletinfo();

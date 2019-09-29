@@ -1,7 +1,7 @@
-async function quickstart() {
-    // Imports the Google Cloud client libraries
-    const vision = require('@google-cloud/vision');
-    const fs = require('fs');
+var fs = require('fs');
+const vision = require('@google-cloud/vision');
+
+async function quickstart(filePath) {
 
     // Creates a client
     const client = new vision.ImageAnnotatorClient();
@@ -9,9 +9,10 @@ async function quickstart() {
     /**
      * TODO(developer): Uncomment the following line before running the sample.
      */
-    const fileName = `./testimage1.jpg`;
+    const fileName = filePath;
+    console.log(fileName);
     const request = {
-    image: {content: fs.readFileSync(fileName)},
+        image: {content: fs.readFileSync(fileName)},
     };
 
     const [result] = await client.objectLocalization(request);
@@ -24,4 +25,4 @@ async function quickstart() {
     });
 }
 
-quickstart();
+module.exports.quickstart = quickstart;
