@@ -5,11 +5,11 @@ const app = express();
 const admin = require('firebase-admin');
 // Imports the Google Cloud client library
 const {Storage} = require('@google-cloud/storage');
+const vision = require('@google-cloud/vision');
 const serviceAccount = require('./firebase-config');
 const rpclib = require('./rpclib');
 const MODE = 'MEMBER';
 const userEnv = require('./user-env');
-const gcVision = require('./gcvision');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -18,6 +18,8 @@ admin.initializeApp({
 let db = admin.firestore();
 
 let masterMetadataRef = db.collection('users').doc('metadata');
+let collectionRegistryRef = db.collection('users').doc('collectionReg');
+              
 
 conn = rpclib.conn;
 
@@ -62,9 +64,12 @@ let observer = masterMetadataRef.onSnapshot(masterMetadataDoc => {
             db.collection('users').doc(masterMetadata.addNode.uid).update({role:'Member'});
             let out = conn.addnode(masterMetadata.addNode.ip, "onetry");
             out.then((res) => console.log(res));
-            masterMetadataRef.update({nodeReg:masterMetadata.nodeReg.push(
-                {ip:masterMetadata.addNode.ip,
-                uid:masterMetadata.addNode.uid})})
+            masterMetadataRef.update({
+              nodeReg: masterMetadata.nodeReg.push({
+                ip: masterMetadata.addNode.ip,
+                uid: masterMetadata.addNode.uid
+              })
+            })
           }
         })
       })
@@ -90,6 +95,12 @@ let observer = masterMetadataRef.onSnapshot(masterMetadataDoc => {
               userMetadataRef.update({
                 recycledReg: newRecycledReg,
                 recycled: true,
+              }).then(() => {
+                collectionRegistryRef.get().then((collectionRegDoc) => {
+                  let newCollectionReg = collectionRegDoc.data();
+                  newCollectionReg[request.material] += 1;
+                  collectionRegistryRef.update(newCollectionReg);
+                });
               });
             }).catch((res)=>console.log(res))
           })
@@ -100,7 +111,53 @@ let observer = masterMetadataRef.onSnapshot(masterMetadataDoc => {
   console.log(`Encountered error: ${err}`);
 });
 
-function downloadImage(imageUrl) {
+async function quickstart(filePath, ownerUid, userMetadataId) {
+    // Creates a client
+    const client = new vision.ImageAnnotatorClient();
+
+    /**
+     * TODO(developer): Uncomment the following line before running the sample.
+     */
+    const fileName = filePath;
+    console.log(fileName);
+    const request = {
+        image: {content: fs.readFileSync(fileName)},
+    };
+
+    const [result] = await client.objectLocalization(request);
+    const objects = result.localizedObjectAnnotations;
+    objects.forEach(prediction => {
+      console.log(`Name: ${prediction.name}`);
+      console.log(`Confidence: ${prediction.score}`);
+      const hashAddress = conn.getnewaddress();
+      hashAddress.then((res) => {
+        const newRecycle = {
+          material: prediction.name,
+          score: prediction.score,
+          hash: res,
+          uid: ownerUid
+        };
+        masterMetadataRef.update({
+          coinReq: newRecycle
+        }).then(() => {
+          fs.access(fileName, error => {
+            if (!error) {
+              fs.unlinkSync(filePath);
+            } else {
+              console.log(error);
+            }
+          });
+          db.collection('metadatas').doc(userMetadataId).update({
+            imageUrl: null
+          });
+        });
+      })
+      // const vertices = object.boundingPoly.normalizedVertices;
+      // vertices.forEach(v => console.log(`x: ${v.x}, y:${v.y}`));
+    });
+}
+
+function downloadImage(imageUrl, ownerUid, userMetadataId) {
   var download = function(uri, filename, callback){
     request.head(uri, function(err, res, body){
       console.log('content-type:', res.headers['content-type']);
@@ -112,9 +169,11 @@ function downloadImage(imageUrl) {
   
   let imageName = './images/' + imageUrl.slice(-8) + '.png';
   download(imageUrl, imageName, function(){
-    gcVision.quickstart(imageName);
+    quickstart(imageName, ownerUid, userMetadataId);
   });
 }
+
+
 // User Logic
 if (MODE == 'MEMBER') {
   const userRef = db.collection('users').doc(userEnv.uid);
@@ -123,20 +182,19 @@ if (MODE == 'MEMBER') {
     userMetadataRef.onSnapshot(userMetadataDoc => {
       const userMetadata = userMetadataDoc.data();
       if (userMetadata.predictImage) {
-        downloadImage(userMetadata.predictImage);
-
+        downloadImage(userMetadata.predictImage, userDoc.data().uid, userDoc.data().userMetadata);
       }
       if (userMetadata.recycled) {
-        // TODO: Request Wallet Info
+        // Request Wallet Info
         const walletRes=conn.getwalletinfo();
         walletRes.then((res)=>{
-                  userRef.update({
-                    coinAmount: res.balance + res.unconfirmed_balance
-                  }).then(() => {
-                    userMetadataRef.update({
-                      recycled: false
-                    });
-                  });
+          userRef.update({
+            coinAmount: res.balance + res.unconfirmed_balance
+          }).then(() => {
+            userMetadataRef.update({
+              recycled: false
+            });
+          });
         })
 
       }
