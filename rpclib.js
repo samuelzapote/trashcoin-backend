@@ -26,6 +26,10 @@ async function addnode(address){
     console.log(out)
 }
 
-mainfunc()
+module.exports = {
+  conn:conn
+}
+
+
 //addnode("192.158.0.6:8233")
 // getnewaddress()
