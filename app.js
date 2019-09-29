@@ -1,55 +1,43 @@
-var express = require('express');
-var app = express();
-
-// Firebase App (the core Firebase SDK) is always required and
-// must be listed before other Firebase SDKs
+const express = require('express');
+const app = express();
 const admin = require('firebase-admin');
-
-// var firebase = require("firebase/app");
-
-// Add the Firebase products that you want to use
-// require("firebase/database");
-
-// firebase.initializeApp(firebaseConfig);
-
-let serviceAccount = require('./firebase-config');
+const serviceAccount = require('./firebase-config');
 const rpclib = require('./rpclib');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
-
 let db = admin.firestore();
+let masterMetadataRef = db.collection('users').doc('metadata');
 
-conn=rpclib.conn;
+conn = rpclib.conn;
 
-let doc = db.collection('users').doc('metadata');
 
-//Logic for addind node to network
-let observer = doc.onSnapshot(docSnapshot => {
+let observer = masterMetadataRef.onSnapshot(masterMetadataDoc => {
   // console.log(`Received doc snapshot: ${docSnapshot.data().addNode.ip}`);
-  if(docSnapshot.data().addNode.active){
-    let out = conn.addnode(docSnapshot.data().addNode.ip,"onetry");
-    out.then((res)=>console.log(res));
+  const masterMetadata = masterMetadataDoc.data();
+  if(masterMetadata.addNode.active){
+    let out = conn.addnode(masterMetadata.addNode.ip, "onetry");
+    out.then((res) => console.log(res));
+
     let peers = conn.getpeerinfo();
-
-      peers.then((res)=>{
+    peers.then((res) => {
       console.log(res);
-      res.forEach((x)=>{
-        if(x.addr==docSnapshot.data().addNode.ip||x.addrlocal==docSnapshot.data().addNode.ip){
-          console.log("Your node added to Network");
-          let data = {
-              addNode: {
-                active : false,
-                ip:'',
-                repNode:'',
-                uid:null
-              },
-              coinReq:docSnapshot.data().coinReq,
-              nodeReg:docSnapshot.data().nodeReg
-            };
+      res.forEach((x) => {
+        if(x.addr == masterMetadata.addNode.ip || x.addrlocal == masterMetadata.addNode.ip) {
+          console.log("Your node has been added to the Network");
+          let newMasterMetadata = {
+            addNode: {
+              active : false,
+              ip: null,
+              repNode: null,
+              uid: null
+            },
+            coinReq: masterMetadata.coinReq,
+            nodeReg: masterMetadata.nodeReg
+          };
 
-            let setDoc = db.collection('users').doc('metadata').set(data);
+          masterMetadataRef.set(newMasterMetadata);
         }
       })
     })
