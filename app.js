@@ -1,29 +1,45 @@
 var express = require('express');
 var app = express();
-var firebase = require("firebase/app");
-require("firebase/auth");
-require("firebase/firestore")
 
+// Firebase App (the core Firebase SDK) is always required and
+// must be listed before other Firebase SDKs
+const admin = require('firebase-admin');
+// var firebase = require("firebase/app");
 
+// Add the Firebase products that you want to use
+// require("firebase/database");
 
-var firebaseConfig = {
-   apiKey: "AIzaSyDsKMuZo_Wa5o5kpDSxIWYBgbBvXZJ9N7E",
-   authDomain: "common-app-fb.firebaseapp.com",
-   databaseURL: "https://common-app-fb.firebaseio.com",
-   projectId: "common-app-fb",
-   storageBucket: "common-app-fb.appspot.com",
-   messagingSenderId: "589838531652",
-   appId: "1:589838531652:web:5077812d470ec9ce069011"
- };
- var defaultProject = firebase.initializeApp(firebaseConfig);
+// firebase.initializeApp(firebaseConfig);
 
- console.log(defaultProject.name);
+let serviceAccount = require('./firebase-config');
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+
+let db = admin.firestore();
+
+let doc = db.collection('tests').doc('komodo-server-1');
+
+let observer = doc.onSnapshot(docSnapshot => {
+  console.log(`Received doc snapshot: ${docSnapshot.data().coinAmnt}`);
+  
+}, err => {
+  console.log(`Encountered error: ${err}`);
+});
+
+// console.log(defaultProject.name);
 
 // var userId = firebase.auth().currentUser.uid;
-firebase.database().ref('tests/komodo-server-1/').once('value').then(function(snapshot) {
-   console.log(snapshot);
+// firebase.database().ref('tests/komodo-server-1/').once('value').then(function(snapshot) {
+//    console.log(snapshot);
+// });
 
- });
+// var docRef = firebase.database().ref('tests/' + 'komodo-server-1');
+// docRef.on('value', function(snapshot) {
+//   console.log(snapshot.val());
+// });
+
 
 // app.get('/', function (req, res) {
 //    res.send('Hello World');
