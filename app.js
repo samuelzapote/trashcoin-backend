@@ -19,7 +19,7 @@ let db = admin.firestore();
 
 let masterMetadataRef = db.collection('users').doc('metadata');
 let collectionRegistryRef = db.collection('users').doc('collectionReg');
-              
+
 
 conn = rpclib.conn;
 
@@ -132,8 +132,8 @@ async function quickstart(filePath, ownerUid, userMetadataId) {
       const hashAddress = conn.getnewaddress();
       hashAddress.then((res) => {
         const newRecycle = {
-          material: prediction.name,
-          score: prediction.score,
+          material: prediction.name.toLowerCase(),
+          score: prediction.score.toString(),
           hash: res,
           uid: ownerUid
         };
@@ -162,11 +162,11 @@ function downloadImage(imageUrl, ownerUid, userMetadataId) {
     request.head(uri, function(err, res, body){
       console.log('content-type:', res.headers['content-type']);
       console.log('content-length:', res.headers['content-length']);
-  
+
       request(uri).pipe(fs.createWriteStream(filename)).on('close', callback);
     });
   };
-  
+
   let imageName = './images/' + imageUrl.slice(-8) + '.png';
   download(imageUrl, imageName, function(){
     quickstart(imageName, ownerUid, userMetadataId);
